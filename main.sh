@@ -88,7 +88,7 @@ if [ "$INSTALL" ]; then
         if [ -f "${PATHS[$INDEX]}" ]; then
             mv "${PATHS[$INDEX]}" "${PATHS[$INDEX]}.backup"
         fi
-        ln -s "${PATHS[$INDEX]}" "${PROJ_DIR}/files/${FILES[$INDEX]}"
+        ln -s "${PROJ_DIR}/files/${FILES[$INDEX]}" "${PATHS[$INDEX]}"
     done
 fi
 
