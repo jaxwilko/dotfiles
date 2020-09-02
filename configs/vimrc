@@ -1,0 +1,42 @@
+call plug#begin('~/.vim/plugged')
+Plug 'drewtempelmeyer/palenight.vim'
+Plug 'itchyny/lightline.vim'
+Plug 'rust-lang/rust.vim'
+Plug 'scrooloose/nerdtree'
+Plug 'Xuyuanp/nerdtree-git-plugin'
+call plug#end()
+
+if (has("nvim"))
+  let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+endif
+
+if (has("termguicolors"))
+  set termguicolors
+endif
+
+if !has('gui_running')
+      set t_Co=256
+endif
+
+if &term =~ '256color'
+    set t_ut=
+endif
+
+let g:lightline = {'colorscheme': 'palenight'}
+let g:palenight_terminal_italics=1
+
+set background=dark
+colorscheme palenight
+
+map <C-n> :NERDTreeToggle<CR>
+
+syntax on
+set ff=unix
+set tabstop=4
+set shiftwidth=4
+set expandtab
+set nowrap
+set number
+set noshowmode
+set laststatus=2
+autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o

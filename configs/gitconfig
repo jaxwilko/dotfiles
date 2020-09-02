@@ -1,0 +1,2 @@
+[alias]
+    lo = log --all --branches --tags --remotes --decorate --graph --oneline

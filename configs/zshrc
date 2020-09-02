@@ -1,0 +1,29 @@
+export ZSH=/home/jack/.oh-my-zsh
+
+ZSH_THEME="powerlevel9k/powerlevel9k"
+
+POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(dir vcs)
+POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=()
+POWERLEVEL9K_DIR_HOME_BACKGROUND="green"
+POWERLEVEL9K_DIR_HOME_SUBFOLDER_BACKGROUND="magenta"
+POWERLEVEL9K_DIR_DEFAULT_BACKGROUND="red"
+POWERLEVEL9K_DIR_PATH_HIGHLIGHT_FOREGROUND="black"
+POWERLEVEL9K_DIR_PATH_SEPARATOR_FOREGROUND="black"
+
+DISABLE_UPDATE_PROMPT=true
+
+plugins=(
+    git
+)
+
+source $ZSH/oh-my-zsh.sh
+
+export DOTNET_CLI_TELEMETRY_OPTOUT=1
+
+unsetopt share_history
+export DOTNET_CLI_TELEMETRY_OPTOUT=1
+export COMPOSER_DISABLE_XDEBUG_WARN=1
+
+export PATH=$HOME/bin:/usr/local/bin:$PATH
+
+source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
