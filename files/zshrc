@@ -24,6 +24,6 @@ unsetopt share_history
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 export COMPOSER_DISABLE_XDEBUG_WARN=1
 
-export PATH=$HOME/bin:/usr/local/bin:$PATH
+export PATH=$HOME/.misc/dotfiles/scripts:$PATH
 
 source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
