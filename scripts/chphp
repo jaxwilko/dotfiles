@@ -7,8 +7,9 @@ fi
 
 get_help() {
     echo "-h                  to see this message"
+    echo "-l                  to list avaliable versions"
     echo "-i                  to see help on installing php"
-    echo "-v [7.0, 7.2, 5.6]  to select a php version"
+    echo "-v [7.0, 7.2, etc]  to select a php version"
     exit 0;
 }
 
@@ -19,12 +20,6 @@ get_install() {
     echo "   sudo apt update"
     echo "If your system complains about a key missing then run:"
     echo "   sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys <key>"
-    echo "After this you should be able to run:"
-    echo "   sudo apt install php7.0"
-    echo "   sudo apt install php7.2"
-    echo "And maybe:"
-    echo "   sudo apt-get install php7.0-mbstring php7.0-mcrypt php7.0-mysql php7.0-xml"
-    echo "   sudo apt-get install php7.2-mbstring php7.2-mysql php7.2-xml"
     echo "If your apache modules have not been installed then run:"
     echo "   sudo apt install libapache2-mod-php7.2"
     echo "   sudo apt install libapache2-mod-php7.1"
@@ -32,42 +27,38 @@ get_install() {
 }
 
 set_version() {
-    case "${1}" in
-        "7.2")
-                `a2dismod php5.6 > /dev/null 2>&1`
-                `a2dismod php7.0 > /dev/null 2>&1`
-                `a2dismod php7.1 > /dev/null 2>&1`
-                `a2enmod php7.2 > /dev/null 2>&1`
-                `update-alternatives --set php /usr/bin/php7.2 > /dev/null 2>&1`
-            ;;
-        "7.1")
-                `a2dismod php5.6 > /dev/null 2>&1`
-                `a2dismod php7.0 > /dev/null 2>&1`
-                `a2enmod php7.1 > /dev/null 2>&1`
-                `a2dismod php7.2 > /dev/null 2>&1`
-                `update-alternatives --set php /usr/bin/php7.1 > /dev/null 2>&1`
-            ;;
-        "7.0")
-                `a2dismod php5.6 > /dev/null 2>&1`
-                `a2enmod php7.0 > /dev/null 2>&1`
-                `a2dismod php7.1 > /dev/null 2>&1`
-                `a2dismod php7.2 > /dev/null 2>&1`
-                `update-alternatives --set php /usr/bin/php7.0 > /dev/null 2>&1`
-            ;;
-        *)
-            echo "Sorry, ${1} is not supported."
-            exit 0;
-            ;;
-    esac
- 
-    echo "php version set to ${1}"
+
+    VERSIONS=$(get_php_versions)
+
+    if [[ ! "$VERSIONS" =~ "${1}" ]]; then
+        echo "version not installed"
+        exit 1;
+    fi
+
+    for VERSION in $VERSIONS
+    do
+        a2dismod "$(basename "$VERSION")" > /dev/null 2>&1
+    done
+
+    for VERSION in $VERSIONS
+    do
+        if [[ "$VERSION" == *"${1}"* ]]; then
+            echo "enabling ${VERSION}"
+            a2enmod "php${1}" > /dev/null 2>&1
+            update-alternatives --set php "${VERSION}" > /dev/null 2>&1
+        fi
+    done
+
     echo "restarting apache..."
-    `service apache2 restart`
-    echo "done!"
-    exit 1;
+    systemctl restart apache2
+    exit 0;
 }
 
-while getopts ":h:v:i" o; do
+get_php_versions() {
+    update-alternatives --list php
+}
+
+while getopts ":h:v:il" o; do
     case "${o}" in
         h)
             h=${OPTARG}
@@ -77,9 +68,13 @@ while getopts ":h:v:i" o; do
             i=${OPTARG}
                 get_install
             ;;
+        l)
+            l=${OPTARG}
+                get_php_versions
+                exit 0
+            ;;
         v)
             v=${OPTARG}
-                echo "setting version ${v}..."
                 set_version $v
             ;;
         *)
@@ -89,7 +84,7 @@ while getopts ":h:v:i" o; do
 done
 shift $((OPTIND-1))
 
-if [ -z "${v}" ] || [ -z "${h}" ]; then
+if [ -z "${v}" ] || [ -z "${h}" ] || [ -z "${l}" ]; then
     get_help
 fi
 
