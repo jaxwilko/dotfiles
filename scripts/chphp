@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-if [ $(whoami) != 'root' ]; then
-    echo "Must be root to run, exiting."
-    exit 1;
+if [ $EUID != 0 ]; then
+    sudo "$0" "$@"
+    exit $?
 fi
 
 get_help() {
