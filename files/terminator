@@ -1,10 +1,11 @@
 [global_config]
+  borderless = True
   inactive_color_offset = 1.0
   suppress_multiple_term_dialog = True
 [keybindings]
 [profiles]
   [[default]]
-    background_color = "#292d3e"
+    background_color = "#070d1b"
     cursor_color = "#e92d94"
     cursor_color_fg = False
     font = Hack 12
