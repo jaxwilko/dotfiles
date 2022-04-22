@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+say() {
+    echo -e "==> \033[0;33m$1\033[0m"
+}
+
+error() {
+    echo -e "\033[0;31m$1\033[0m"
+}
+
+REGISTRY=$(echo "$HOME/.steam/registry.vdf")
+
+if ! [ -x "$(command -v steam)" ]; then
+    error "Error: Steam is not installed." >&2
+    exit 1
+fi
+
+if [ ! -f $REGISTRY ]; then
+    error "Error: Couldn't find $REGISTRY."
+    exit 1
+fi
+
+if [ $# -eq 0 ]; then
+    ACCOUNT_NAMES=$(cat $HOME/.steam/steam/config/loginusers.vdf | grep "AccountName" | awk '{print $2}' | sed 's/"//g')
+
+    if [ ! "$ACCOUNT_NAMES" ]; then
+        error "No accounts found, login to steam first"
+    fi
+
+    ACCOUNTS=""
+
+    while IFS= read -r ACCOUNT; do
+        ACCOUNTS="${ACCOUNTS} FALSE $ACCOUNT"
+    done <<< "$ACCOUNT_NAMES"
+
+    USERNAME=$(
+        zenity --list \
+            --title="Steam account login helper" \
+            --text "Select the account to log into:" \
+            --radiolist \
+            --column "🦝" \
+            --column="Account" \
+            $ACCOUNTS
+    )
+
+    if [ ! "$USERNAME" ]; then
+        error "User not picked, exiting..."
+        exit 0
+    fi
+else
+    USERNAME=$1
+fi
+
+STEAM_PID=$(cat $REGISTRY | grep "SteamPID" | awk '{print $2}' | sed 's/"//g')
+KILL_SENT=0
+
+while ps -p $STEAM_PID > /dev/null 2>&1; do
+    if [[ $KILL_SENT -eq 0 ]]; then
+        say "Steam was running as \`${STEAM_PID}\`, killing now..."
+        kill $STEAM_PID
+        KILL_SENT=1
+    else
+        say "Steam still running, waiting..."
+    fi
+    sleep 8
+done
+
+sed -i "s/\"AutoLoginUser\"\t\t[^ ]*/\"AutoLoginUser\"\t\t\"${USERNAME}\"/" $REGISTRY
+
+say "Starting steam ..."
+steam > /dev/null 2>&1 &
